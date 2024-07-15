@@ -20,16 +20,17 @@ public class PlayerFootStepSound : MonoBehaviour
     {
         if (controller.MoveInput == Vector3.zero)
         {
-            return;
-        }
-
-        footstepTimer -= Time.deltaTime;
-        if (footstepTimer <= 0f && controller.MoveInput != Vector3.zero)
-        {
-
-            source.PlayOneShot(GetRandomClip());
             footstepTimer = delay;
+        }
+        else
+        {
+            footstepTimer -= Time.deltaTime;
+            if (footstepTimer <= 0f)
+            {
+                source.PlayOneShot(GetRandomClip());
+                footstepTimer = delay;
 
+            }
         }
     }
 
