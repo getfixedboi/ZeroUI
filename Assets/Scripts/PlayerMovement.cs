@@ -29,8 +29,18 @@ public class PlayerMovement : MonoBehaviour
         MoveInput.Normalize();
         Vector3 vector2 = transform.right * axis + transform.forward * axis2;
         vector2 = Vector3.ClampMagnitude(vector2, 1f);
-        Character.Move(vector2 * _speed * Time.deltaTime);
-        _velocity.y = _velocity.y + _gravity * Time.deltaTime;
-        Character.Move(_velocity * Time.deltaTime);
+        if (Input.GetButton("Horizontal") || Input.GetButton("Vertical"))
+        {
+            Character.Move(vector2 * _speed * Time.deltaTime);
+            _velocity.y = _velocity.y + _gravity * Time.deltaTime;
+            Character.Move(_velocity * Time.deltaTime);
+        }
+        else
+        {
+            MoveInput = Vector3.zero;
+            Character.Move(Vector3.zero * _speed * Time.deltaTime);
+            _velocity.y = 0;
+            Character.Move(_velocity * Time.deltaTime);
+        }
     }
 }
