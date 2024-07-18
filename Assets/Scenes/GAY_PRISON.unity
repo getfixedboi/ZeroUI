@@ -2035,8 +2035,8 @@ GameObject:
   - component: {fileID: 2059068930}
   - component: {fileID: 2059068929}
   - component: {fileID: 2059068928}
-  - component: {fileID: 2059068926}
   - component: {fileID: 2059068932}
+  - component: {fileID: 2059068933}
   m_Layer: 0
   m_Name: generator
   m_TagString: Untagged
@@ -2044,20 +2044,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2059068926
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2059068925}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba26684625e625d48b5592a05e19825f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Type: 0
-  clip: {fileID: 8300000, guid: 832302466fecf834c8b4e8d354cd6538, type: 3}
 --- !u!65 &2059068928
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2240,6 +2226,26 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &2059068933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2059068925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6edbc0d255e6064ebfd0ededcd82607, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Type: 0
+  clip: {fileID: 0}
+  _maxGasCapacity: 100
+  _maxGeneratorDutability: 100
+  _maxLampDutability: 100
+  _startGasCost: 0.02
+  _startGeneratorCost: 0.02
+  _startLampCost: 0.02
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
