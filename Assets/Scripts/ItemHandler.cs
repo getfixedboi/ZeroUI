@@ -9,7 +9,9 @@ public class ItemHandler : MonoBehaviour
     {
         none,
         wrench,
-        hammer
+        hammer,
+        lamp,
+        gas
     }
     public static TypeList CurrentType;
 }
