@@ -13,13 +13,13 @@ public class GameManager : Interactable
     [Space]
     private float _currentGasCapacity;
     private float _currentGeneratorDutability;
-    private float _currentLampDutability;
+    public float CurrentLampDutability;
     [SerializeField][Range(0, 5)] private float _startGasCost;
     [SerializeField][Range(0, 5)] private float _startGeneratorCost;
     [SerializeField][Range(0, 5)] private float _startLampCost;
     private float _timer = 0;
-    private bool startGame = false;
-
+    public bool StartGame = false;
+    
     private bool _level1Reached = false;
     private bool _level2Reached = false;
     private bool _level3Reached = false;
@@ -31,16 +31,16 @@ public class GameManager : Interactable
         base.Awake();
         _currentGasCapacity = _maxGasCapacity;
         _currentGeneratorDutability = _maxGeneratorDutability;
-        _currentLampDutability = _maxLampDutability;
+        CurrentLampDutability = _maxLampDutability;
     }
 
     public override void OnInteract()
     {
-        if (!startGame)
+        if (!StartGame)
         {
-            startGame = true;
+            StartGame = true;
         }
-        else if(startGame)
+        else if(StartGame)
         {
             switch (ItemHandler.CurrentType)
             {
@@ -55,10 +55,10 @@ public class GameManager : Interactable
                     }
                 case ItemHandler.TypeList.lamp:
                     {
-                        _currentLampDutability += _maxLampDutability * 0.25f;
-                        if (_currentLampDutability > _maxLampDutability)
+                        CurrentLampDutability += _maxLampDutability * 0.25f;
+                        if (CurrentLampDutability > _maxLampDutability)
                         {
-                            _currentLampDutability = _maxLampDutability;
+                            CurrentLampDutability = _maxLampDutability;
                         }
                         break;
                     }
@@ -85,13 +85,13 @@ public class GameManager : Interactable
         Debug.Log($"time - {_timer}");
         Debug.Log($"gas - {_currentGasCapacity}");
         Debug.Log($"generator - {_currentGeneratorDutability}");
-        Debug.Log($"lamp - {_currentLampDutability}");
+        Debug.Log($"lamp - {CurrentLampDutability}");
 
-        if (!startGame)
+        if (!StartGame)
         {
             return;
         }
-        else if (_currentGasCapacity <= 0 || _currentGeneratorDutability <= 0 || _currentLampDutability <= 0)
+        else if (_currentGasCapacity <= 0 || _currentGeneratorDutability <= 0 || CurrentLampDutability <= 0)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
@@ -101,7 +101,7 @@ public class GameManager : Interactable
 
             _currentGasCapacity -= _maxGasCapacity * _startGasCost * Time.deltaTime;
             _currentGeneratorDutability -= _maxGeneratorDutability * _startGeneratorCost * Time.deltaTime;
-            _currentLampDutability -= _maxLampDutability * _startLampCost * Time.deltaTime;
+            CurrentLampDutability -= _maxLampDutability * _startLampCost * Time.deltaTime;
 
             if (_timer >= 60 && !_level1Reached)
             {
