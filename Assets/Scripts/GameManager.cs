@@ -34,13 +34,18 @@ public class GameManager : Interactable
     [SerializeField] private AudioClip _wrenchSound;
     [SerializeField] private AudioClip _hammerSound;
     [SerializeField] private AudioClip _lampSound;
-
+    [Header("Крышки от генератора")]
+    [SerializeField] private GameObject _closedKrishka;
+    [SerializeField] private GameObject _openedKrishka;
     protected override void Awake()
     {
         base.Awake();
         _currentGasCapacity = _maxGasCapacity;
         _currentGeneratorDutability = _maxGeneratorDutability;
         CurrentLampDutability = _maxLampDutability;
+
+        _openedKrishka.SetActive(false);
+        _closedKrishka.SetActive(true);
     }
 
     public override void OnInteract()
@@ -114,12 +119,18 @@ public class GameManager : Interactable
                             source.PlayOneShot(_wrenchSound);
                             StartCoroutine(C_InteractCD());
                             _gasTankOpened = false;
+
+                            _openedKrishka.SetActive(false);
+                            _closedKrishka.SetActive(true);
                         }
                         else
                         {
                             source.PlayOneShot(_wrenchSound);
                             StartCoroutine(C_InteractCD());
                             _gasTankOpened = true;
+
+                            _openedKrishka.SetActive(true);
+                            _closedKrishka.SetActive(false);
                         }
                         break;
                     }
