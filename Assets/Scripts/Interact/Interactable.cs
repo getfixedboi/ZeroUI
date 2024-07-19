@@ -20,6 +20,7 @@ public abstract class Interactable : MonoBehaviour
     protected AudioSource source;
     protected virtual void Awake()
     {
+        canPickup=true;
         IsLastInteracted = false;
         source = GetComponent<AudioSource>();
     }
