@@ -11,7 +11,7 @@ public class ItemHandler : MonoBehaviour
         wrench,
         hammer,
         lamp,
-        gas
+        gasoline
     }
     public static TypeList CurrentType;
 }

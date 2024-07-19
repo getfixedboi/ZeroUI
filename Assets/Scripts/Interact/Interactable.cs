@@ -5,6 +5,8 @@ using System;
 [RequireComponent(typeof(AudioSource))]
 public abstract class Interactable : MonoBehaviour
 {
+    protected static bool canPickup=true; 
+    
     [HideInInspector]
     public ItemHandler.TypeList Type;
     /// <summary>
@@ -13,6 +15,8 @@ public abstract class Interactable : MonoBehaviour
     public bool IsLastInteracted { get; protected set; }
     [SerializeField]
     protected AudioClip clip;
+    [SerializeField]
+    protected AudioClip errorSound;
     protected AudioSource source;
     protected virtual void Awake()
     {

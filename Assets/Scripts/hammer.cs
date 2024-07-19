@@ -24,8 +24,9 @@ public class hammer : Interactable
         {
             if (ItemHandler.CurrentType == ItemHandler.TypeList.hammer)
             {
+                StartCoroutine(C_PickUpCD());
                 source.PlayOneShot(clip);
-                GetComponent<MeshRenderer>().enabled = true;
+                Switcher(gameObject, true);
                 ItemHandler.CurrentType = ItemHandler.TypeList.none;
                 ToggleObject.gameObject.SetActive(false);
             }
@@ -37,22 +38,41 @@ public class hammer : Interactable
         {
             if (ToggleObject.activeSelf)
             {
+                StartCoroutine(C_PickUpCD());
                 source.PlayOneShot(clip);
-                GetComponent<MeshRenderer>().enabled = true;
+                Switcher(gameObject, true);
                 ItemHandler.CurrentType = ItemHandler.TypeList.none;
                 ToggleObject.gameObject.SetActive(false);
             }
             else
             {
-                source.PlayOneShot(clip);
-                GetComponent<MeshRenderer>().enabled = false;
-                ToggleObject.gameObject.SetActive(true);
-                ItemHandler.CurrentType = ItemHandler.TypeList.hammer;
+                if (canPickup)
+                {
+                    source.PlayOneShot(clip);
+                    Switcher(gameObject, false);
+                    ToggleObject.gameObject.SetActive(true);
+                    ItemHandler.CurrentType = ItemHandler.TypeList.hammer;
+                }
+                else
+                {
+                    source.PlayOneShot(errorSound);
+                }
             }
         }
     }
 
     public override void OnLoseFocus()
     {
+    }
+    private void Switcher(GameObject _object, bool state)
+    {
+        _object.transform.GetChild(0).gameObject.SetActive(state);
+        _object.transform.GetChild(1).gameObject.SetActive(state);
+    }
+    private IEnumerator C_PickUpCD()
+    {
+        canPickup = false;
+        yield return new WaitForSeconds(2f);
+        canPickup = true;
     }
 }

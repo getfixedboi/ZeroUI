@@ -13,18 +13,27 @@ public class GameManager : Interactable
     [Space]
     private float _currentGasCapacity;
     private float _currentGeneratorDutability;
-    public float CurrentLampDutability;
+    [HideInInspector] public float CurrentLampDutability;
     [SerializeField][Range(0, 5)] private float _startGasCost;
     [SerializeField][Range(0, 5)] private float _startGeneratorCost;
     [SerializeField][Range(0, 5)] private float _startLampCost;
     private float _timer = 0;
+    [Space]
     public bool StartGame = false;
-    
+    #region shitcode
     private bool _level1Reached = false;
     private bool _level2Reached = false;
     private bool _level3Reached = false;
     private bool _level4Reached = false;
     private bool _level5Reached = false;
+    #endregion
+    private bool _interactCD = false;
+    private bool _gasTankOpened = false;
+    [Header("Interact sounds")]
+    [SerializeField] private AudioClip _gasolineSound;
+    [SerializeField] private AudioClip _wrenchSound;
+    [SerializeField] private AudioClip _hammerSound;
+    [SerializeField] private AudioClip _lampSound;
 
     protected override void Awake()
     {
@@ -40,34 +49,77 @@ public class GameManager : Interactable
         {
             StartGame = true;
         }
-        else if(StartGame)
+        else if (StartGame && !_interactCD)
         {
             switch (ItemHandler.CurrentType)
             {
                 case ItemHandler.TypeList.hammer:
                     {
-                        _currentGeneratorDutability += _maxGeneratorDutability * 0.25f;
-                        if (_currentGeneratorDutability > _maxGeneratorDutability)
+                        if (!_gasTankOpened)
                         {
-                            _currentGeneratorDutability = _maxGeneratorDutability;
+                            source.PlayOneShot(_hammerSound);
+                            StartCoroutine(C_InteractCD());
+                            _currentGeneratorDutability += _maxGeneratorDutability * 0.25f;
+                            if (_currentGeneratorDutability > _maxGeneratorDutability)
+                            {
+                                _currentGeneratorDutability = _maxGeneratorDutability;
+                            }
+                        }
+                        else
+                        {
+                            source.PlayOneShot(errorSound);
                         }
                         break;
                     }
                 case ItemHandler.TypeList.lamp:
                     {
-                        CurrentLampDutability += _maxLampDutability * 0.25f;
-                        if (CurrentLampDutability > _maxLampDutability)
+                        if (!_gasTankOpened)
                         {
-                            CurrentLampDutability = _maxLampDutability;
+                            source.PlayOneShot(_lampSound);
+                            StartCoroutine(C_InteractCD());
+                            CurrentLampDutability += _maxLampDutability * 0.25f;
+                            if (CurrentLampDutability > _maxLampDutability)
+                            {
+                                CurrentLampDutability = _maxLampDutability;
+                            }
+                        }
+                        else
+                        {
+                            source.PlayOneShot(errorSound);
                         }
                         break;
                     }
-                case ItemHandler.TypeList.gas:
+                case ItemHandler.TypeList.gasoline:
                     {
-                        _currentGasCapacity += _maxGasCapacity * 0.25f;
-                        if (_currentGasCapacity > _maxGasCapacity)
+                        if (_gasTankOpened)
                         {
-                            _currentGasCapacity = _maxGasCapacity;
+                            source.PlayOneShot(_gasolineSound);
+                            StartCoroutine(C_InteractCD());
+                            _currentGasCapacity += _maxGasCapacity * 0.25f;
+                            if (_currentGasCapacity > _maxGasCapacity)
+                            {
+                                _currentGasCapacity = _maxGasCapacity;
+                            }
+                        }
+                        else
+                        {
+                            source.PlayOneShot(errorSound);
+                        }
+                        break;
+                    }
+                case ItemHandler.TypeList.wrench:
+                    {
+                        if (_gasTankOpened)
+                        {
+                            source.PlayOneShot(_wrenchSound);
+                            StartCoroutine(C_InteractCD());
+                            _gasTankOpened = false;
+                        }
+                        else
+                        {
+                            source.PlayOneShot(_wrenchSound);
+                            StartCoroutine(C_InteractCD());
+                            _gasTankOpened = true;
                         }
                         break;
                     }
@@ -76,6 +128,10 @@ public class GameManager : Interactable
                         break;
                     }
             }
+        }
+        else
+        {
+            source.PlayOneShot(clip);
         }
     }
 
@@ -138,11 +194,11 @@ public class GameManager : Interactable
                 _startLampCost *= 1.1f;
                 _level5Reached = true;
             }
-            else if(_timer >= 360)
+            else if (_timer >= 360)
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
-            
+
         }
     }
 
@@ -155,4 +211,11 @@ public class GameManager : Interactable
 
     public override void OnFocus() { }
     public override void OnLoseFocus() { }
+
+    private IEnumerator C_InteractCD()
+    {
+        _interactCD = true;
+        yield return new WaitForSeconds(1.5f);
+        _interactCD = false;
+    }
 }

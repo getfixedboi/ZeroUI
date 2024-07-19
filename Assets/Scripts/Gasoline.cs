@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Wrench : Interactable
+[DisallowMultipleComponent]
+public class Gasoline : Interactable
 {
     public GameObject ToggleObject;
     protected override void Awake()
     {
         base.Awake();
-        Type = ItemHandler.TypeList.wrench;
+        Type = ItemHandler.TypeList.gasoline;
     }
 
     private void Update()
@@ -19,7 +20,7 @@ public class Wrench : Interactable
         }
         else
         {
-            if (ItemHandler.CurrentType == ItemHandler.TypeList.wrench)
+            if (ItemHandler.CurrentType == ItemHandler.TypeList.gasoline)
             {
                 StartCoroutine(C_PickUpCD());
                 source.PlayOneShot(clip);
@@ -31,7 +32,7 @@ public class Wrench : Interactable
     }
     public override void OnInteract()
     {
-        if (ItemHandler.CurrentType == ItemHandler.TypeList.wrench || ItemHandler.CurrentType == ItemHandler.TypeList.none)
+        if (ItemHandler.CurrentType == ItemHandler.TypeList.gasoline || ItemHandler.CurrentType == ItemHandler.TypeList.none)
         {
             if (ToggleObject.activeSelf)
             {
@@ -48,7 +49,7 @@ public class Wrench : Interactable
                     source.PlayOneShot(clip);
                     Switcher(gameObject, false);
                     ToggleObject.gameObject.SetActive(true);
-                    ItemHandler.CurrentType = ItemHandler.TypeList.wrench;
+                    ItemHandler.CurrentType = ItemHandler.TypeList.gasoline;
                 }
                 else
                 {
@@ -63,8 +64,8 @@ public class Wrench : Interactable
     {
         _object.transform.GetChild(0).gameObject.SetActive(state);
         _object.transform.GetChild(1).gameObject.SetActive(state);
+        _object.transform.GetChild(2).gameObject.SetActive(state);
     }
-
     private IEnumerator C_PickUpCD()
     {
         canPickup = false;
