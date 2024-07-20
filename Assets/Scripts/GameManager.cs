@@ -149,11 +149,11 @@ public class GameManager : Interactable
 
     private void Update()
     {
-        //ClearConsole();
-        //Debug.Log($"time - {_timer}");
-        //Debug.Log($"gas - {CurrentGasCapacity}");
-        //Debug.Log($"generator - {CurrentGeneratorDutability}");
-        //Debug.Log($"lamp - {CurrentLampDutability}");
+        ClearConsole();
+        Debug.Log($"time - {_timer}");
+        Debug.Log($"gas - {CurrentGasCapacity}");
+        Debug.Log($"generator - {CurrentGeneratorDutability}");
+        Debug.Log($"lamp - {CurrentLampDutability}");
 
         if (!StartGame)
         {
