@@ -11,8 +11,8 @@ public class GameManager : Interactable
     [SerializeField][Range(1, 100)] private float _maxGeneratorDutability;
     [SerializeField][Range(1, 100)] private float _maxLampDutability;
     [Space]
-    private float _currentGasCapacity;
-    private float _currentGeneratorDutability;
+    [HideInInspector] public float CurrentGasCapacity;
+    [HideInInspector] public float CurrentGeneratorDutability;
     [HideInInspector] public float CurrentLampDutability;
     [SerializeField][Range(0, 5)] private float _startGasCost;
     [SerializeField][Range(0, 5)] private float _startGeneratorCost;
@@ -40,8 +40,8 @@ public class GameManager : Interactable
     protected override void Awake()
     {
         base.Awake();
-        _currentGasCapacity = _maxGasCapacity;
-        _currentGeneratorDutability = _maxGeneratorDutability;
+        CurrentGasCapacity = _maxGasCapacity;
+        CurrentGeneratorDutability = _maxGeneratorDutability;
         CurrentLampDutability = _maxLampDutability;
 
         _openedKrishka.SetActive(false);
@@ -64,10 +64,10 @@ public class GameManager : Interactable
                         {
                             source.PlayOneShot(_hammerSound);
                             StartCoroutine(C_InteractCD());
-                            _currentGeneratorDutability += _maxGeneratorDutability * 0.25f;
-                            if (_currentGeneratorDutability > _maxGeneratorDutability)
+                            CurrentGeneratorDutability += _maxGeneratorDutability * 0.25f;
+                            if (CurrentGeneratorDutability > _maxGeneratorDutability)
                             {
-                                _currentGeneratorDutability = _maxGeneratorDutability;
+                                CurrentGeneratorDutability = _maxGeneratorDutability;
                             }
                         }
                         else
@@ -100,10 +100,10 @@ public class GameManager : Interactable
                         {
                             source.PlayOneShot(_gasolineSound);
                             StartCoroutine(C_InteractCD());
-                            _currentGasCapacity += _maxGasCapacity * 0.25f;
-                            if (_currentGasCapacity > _maxGasCapacity)
+                            CurrentGasCapacity += _maxGasCapacity * 0.25f;
+                            if (CurrentGasCapacity > _maxGasCapacity)
                             {
-                                _currentGasCapacity = _maxGasCapacity;
+                                CurrentGasCapacity = _maxGasCapacity;
                             }
                         }
                         else
@@ -148,17 +148,17 @@ public class GameManager : Interactable
 
     private void Update()
     {
-        ClearConsole();
-        Debug.Log($"time - {_timer}");
-        Debug.Log($"gas - {_currentGasCapacity}");
-        Debug.Log($"generator - {_currentGeneratorDutability}");
-        Debug.Log($"lamp - {CurrentLampDutability}");
+        //ClearConsole();
+        //Debug.Log($"time - {_timer}");
+        //Debug.Log($"gas - {CurrentGasCapacity}");
+        //Debug.Log($"generator - {CurrentGeneratorDutability}");
+        //Debug.Log($"lamp - {CurrentLampDutability}");
 
         if (!StartGame)
         {
             return;
         }
-        else if (_currentGasCapacity <= 0 || _currentGeneratorDutability <= 0 || CurrentLampDutability <= 0)
+        else if (CurrentGasCapacity <= 0 || CurrentGeneratorDutability <= 0 || CurrentLampDutability <= 0)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
@@ -166,8 +166,8 @@ public class GameManager : Interactable
         {
             _timer += Time.deltaTime;
 
-            _currentGasCapacity -= _maxGasCapacity * _startGasCost * Time.deltaTime;
-            _currentGeneratorDutability -= _maxGeneratorDutability * _startGeneratorCost * Time.deltaTime;
+            CurrentGasCapacity -= _maxGasCapacity * _startGasCost * Time.deltaTime;
+            CurrentGeneratorDutability -= _maxGeneratorDutability * _startGeneratorCost * Time.deltaTime;
             CurrentLampDutability -= _maxLampDutability * _startLampCost * Time.deltaTime;
 
             if (_timer >= 60 && !_level1Reached)
