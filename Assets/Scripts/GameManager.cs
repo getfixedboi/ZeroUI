@@ -52,7 +52,7 @@ public class GameManager : Interactable
     {
         if (!StartGame)
         {
-            StartGame = true;
+            source.PlayOneShot(errorSound);
         }
         else if (StartGame && !_interactCD)
         {
@@ -136,6 +136,7 @@ public class GameManager : Interactable
                     }
                 default:
                     {
+                        source.PlayOneShot(errorSound);
                         break;
                     }
             }
