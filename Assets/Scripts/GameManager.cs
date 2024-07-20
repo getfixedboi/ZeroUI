@@ -37,6 +37,8 @@ public class GameManager : Interactable
     [Header("Крышки от генератора")]
     [SerializeField] private GameObject _closedKrishka;
     [SerializeField] private GameObject _openedKrishka;
+    [Header("Лампочка от генератора")]
+    [SerializeField] private GameObject _lampochka;
     protected override void Awake()
     {
         base.Awake();
@@ -80,6 +82,8 @@ public class GameManager : Interactable
                     {
                         if (!_gasTankOpened)
                         {
+                            _lampochka.SetActive(false);
+                            ItemHandler.CurrentType = ItemHandler.TypeList.none;
                             source.PlayOneShot(_lampSound);
                             StartCoroutine(C_InteractCD());
                             CurrentLampDutability += _maxLampDutability * 0.25f;
@@ -149,11 +153,11 @@ public class GameManager : Interactable
 
     private void Update()
     {
-        ClearConsole();
-        Debug.Log($"time - {_timer}");
-        Debug.Log($"gas - {CurrentGasCapacity}");
-        Debug.Log($"generator - {CurrentGeneratorDutability}");
-        Debug.Log($"lamp - {CurrentLampDutability}");
+        //ClearConsole();
+        //Debug.Log($"time - {_timer}");
+        //Debug.Log($"gas - {CurrentGasCapacity}");
+        //Debug.Log($"generator - {CurrentGeneratorDutability}");
+        //Debug.Log($"lamp - {CurrentLampDutability}");
 
         if (!StartGame)
         {
@@ -227,7 +231,7 @@ public class GameManager : Interactable
     private IEnumerator C_InteractCD()
     {
         _interactCD = true;
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(.5f);
         _interactCD = false;
     }
 }

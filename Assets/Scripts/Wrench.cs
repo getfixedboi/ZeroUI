@@ -68,7 +68,7 @@ public class Wrench : Interactable
     private IEnumerator C_PickUpCD()
     {
         canPickup = false;
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(0f);
         canPickup = true;
     }
 }
