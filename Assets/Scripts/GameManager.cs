@@ -9,7 +9,7 @@ public class GameManager : Interactable
 {
     [SerializeField][Range(1, 100)] private float _maxGasCapacity;
     [SerializeField][Range(1, 100)] private float _maxGeneratorDutability;
-    [SerializeField][Range(1, 100)] private float _maxLampDutability;
+    [Range(1, 100)] public float _maxLampDutability;
     [Space]
     [HideInInspector] public float CurrentGasCapacity;
     [HideInInspector] public float CurrentGeneratorDutability;
@@ -27,18 +27,22 @@ public class GameManager : Interactable
     private bool _level4Reached = false;
     private bool _level5Reached = false;
     #endregion
-    private bool _interactCD = false;
-    private bool _gasTankOpened = false;
+    [HideInInspector]
+    public bool _interactCD = false;
+
+    [HideInInspector]
+    public bool _gasTankOpened = false;
+
     [Header("Interact sounds")]
     [SerializeField] private AudioClip _gasolineSound;
     [SerializeField] private AudioClip _wrenchSound;
     [SerializeField] private AudioClip _hammerSound;
-    [SerializeField] private AudioClip _lampSound;
+    public AudioClip _lampSound;
     [Header("Крышки от генератора")]
     [SerializeField] private GameObject _closedKrishka;
     [SerializeField] private GameObject _openedKrishka;
     [Header("Лампочка от генератора")]
-    [SerializeField] private GameObject _lampochka;
+    public GameObject _lampochka;
     protected override void Awake()
     {
         base.Awake();
@@ -70,26 +74,6 @@ public class GameManager : Interactable
                             if (CurrentGeneratorDutability > _maxGeneratorDutability)
                             {
                                 CurrentGeneratorDutability = _maxGeneratorDutability;
-                            }
-                        }
-                        else
-                        {
-                            source.PlayOneShot(errorSound);
-                        }
-                        break;
-                    }
-                case ItemHandler.TypeList.lamp:
-                    {
-                        if (!_gasTankOpened)
-                        {
-                            _lampochka.SetActive(false);
-                            ItemHandler.CurrentType = ItemHandler.TypeList.none;
-                            source.PlayOneShot(_lampSound);
-                            StartCoroutine(C_InteractCD());
-                            CurrentLampDutability += _maxLampDutability * 0.25f;
-                            if (CurrentLampDutability > _maxLampDutability)
-                            {
-                                CurrentLampDutability = _maxLampDutability;
                             }
                         }
                         else
@@ -153,11 +137,11 @@ public class GameManager : Interactable
 
     private void Update()
     {
-        //ClearConsole();
-        //Debug.Log($"time - {_timer}");
-        //Debug.Log($"gas - {CurrentGasCapacity}");
-        //Debug.Log($"generator - {CurrentGeneratorDutability}");
-        //Debug.Log($"lamp - {CurrentLampDutability}");
+        ClearConsole();
+        Debug.Log($"time - {_timer}");
+        Debug.Log($"gas - {CurrentGasCapacity}");
+        Debug.Log($"generator - {CurrentGeneratorDutability}");
+        Debug.Log($"lamp - {CurrentLampDutability}");
 
         if (!StartGame)
         {
@@ -177,37 +161,37 @@ public class GameManager : Interactable
 
             if (_timer >= 60 && !_level1Reached)
             {
-                _startGasCost += 0.01f;
-                _startGeneratorCost += 0.01f;
-                _startLampCost += 0.01f;
+                //_startGasCost += 0.01f;
+                //_startGeneratorCost += 0.01f;
+                //_startLampCost += 0.01f;
                 _level1Reached = true;
             }
             else if (_timer >= 120 && !_level2Reached)
             {
-                _startGasCost *= 1.2f;
-                _startGeneratorCost *= 1.2f;
-                _startLampCost *= 1.2f;
+                _startGasCost += 0.01f;
+                _startGeneratorCost += 0.01f;
+                _startLampCost += 0.01f;
                 _level2Reached = true;
             }
             else if (_timer >= 180 && !_level3Reached)
             {
-                _startGasCost *= 1.1f;
-                _startGeneratorCost *= 1.1f;
-                _startLampCost *= 1.1f;
+                _startGasCost += 0.01f;
+                _startGeneratorCost += 0.01f;
+                _startLampCost += 0.01f;
                 _level3Reached = true;
             }
             else if (_timer >= 240 && !_level4Reached)
             {
-                _startGasCost *= 1.1f;
-                _startGeneratorCost *= 1.1f;
-                _startLampCost *= 1.1f;
+                _startGasCost += 0.01f;
+                _startGeneratorCost += 0.01f;
+                _startLampCost += 0.01f;
                 _level4Reached = true;
             }
             else if (_timer >= 300 && !_level5Reached)
             {
-                _startGasCost *= 1.1f;
-                _startGeneratorCost *= 1.1f;
-                _startLampCost *= 1.1f;
+                _startGasCost += 0.01f;
+                _startGeneratorCost += 0.01f;
+                _startLampCost += 0.01f;
                 _level5Reached = true;
             }
             else if (_timer >= 360)
@@ -231,7 +215,7 @@ public class GameManager : Interactable
     private IEnumerator C_InteractCD()
     {
         _interactCD = true;
-        yield return new WaitForSeconds(.5f);
+        yield return new WaitForSeconds(1f);
         _interactCD = false;
     }
 }

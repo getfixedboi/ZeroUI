@@ -11,8 +11,13 @@ public class IndicatorChanger : MonoBehaviour
     [SerializeField] private GameManager _manager;
     private float gasMultiplier;
     private float generatorMultiplier;
+
+    private AudioSource AudioSource;
+
+    public AudioClip clipPOPOK;
     private void Start()
     {
+        AudioSource = GetComponent<AudioSource>();
         gasMultiplier = 1;
         generatorMultiplier = 1;
         StartCoroutine(C_BlinkingIndicator());
@@ -33,6 +38,7 @@ public class IndicatorChanger : MonoBehaviour
             yield return new WaitForSeconds(.5f);
             if (gasMultiplier <= 0.25f)
             {
+                AudioSource.PlayOneShot(clipPOPOK);
                 _gasolineImage.enabled = !_gasolineImage.IsActive();
             }
             else
@@ -42,6 +48,7 @@ public class IndicatorChanger : MonoBehaviour
 
             if (generatorMultiplier <= 0.25f)
             {
+                AudioSource.PlayOneShot(clipPOPOK);
                 _hammerImage.enabled = !_hammerImage.IsActive();
             }
             else

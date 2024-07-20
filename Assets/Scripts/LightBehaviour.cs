@@ -12,9 +12,16 @@ public class LightBehaviour : MonoBehaviour
     [Range(0, 1)] public float IntensityLimit;
     [Range(0, 1)] public float StartFlickingPeriod;
 
+    public GameObject _material;
+    public GameObject pointLUGHTEWJGEWGFVEW;
+
+    public Material origig;
+    public Material secondoric;
+
     void Awake()
     {
         TargetLight = GetComponent<Light>();
+
     }
 
     void Update()
@@ -41,7 +48,11 @@ public class LightBehaviour : MonoBehaviour
     private IEnumerator C_Flick()
     {
         TargetLight.enabled = false;
+        _material.GetComponent<Renderer>().material = secondoric;
+        pointLUGHTEWJGEWGFVEW.SetActive(false);
         yield return new WaitForSeconds(LightOffDelay);
+        _material.GetComponent<Renderer>().material = origig;
         TargetLight.enabled = true;
+        pointLUGHTEWJGEWGFVEW.SetActive(true);
     }
 }

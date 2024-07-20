@@ -6,6 +6,8 @@ public class GameStarter : Interactable
 {
     public GameManager manager;
 
+    public GameObject engine;
+
     public override void OnFocus()
     {
     }
@@ -14,6 +16,7 @@ public class GameStarter : Interactable
     {
         if (ItemHandler.CurrentType == ItemHandler.TypeList.none)
         {
+            engine.SetActive(true);
             manager.StartGame = true;
         }
         else
