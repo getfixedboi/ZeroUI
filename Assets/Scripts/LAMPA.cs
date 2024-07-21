@@ -12,7 +12,7 @@ public class LAMPA : Interactable
 
     public override void OnInteract()
     {
-        if (!gameManager.GasTankOpened && ItemHandler.CurrentType == ItemHandler.TypeList.lamp && gameManager.StartGame && !gameManager._interactCD)
+        if (ItemHandler.CurrentType == ItemHandler.TypeList.lamp && gameManager.StartGame && !gameManager._interactCD)
         {
             gameManager._lampochka.SetActive(false);
             ItemHandler.CurrentType = ItemHandler.TypeList.none;
