@@ -26,7 +26,6 @@ public class GameManager : Interactable
     private bool _level2Reached = false;
     private bool _level3Reached = false;
     private bool _level4Reached = false;
-    private bool _level5Reached = false;
     #endregion
     [HideInInspector]
     public bool _interactCD = false;
@@ -142,7 +141,7 @@ public class GameManager : Interactable
         {
             return;
         }
-        //CurrentLampDutability-=.1f;
+        CurrentGeneratorDutability-=.1f;
         if(gameEnd)
         {
             return;
@@ -202,14 +201,7 @@ public class GameManager : Interactable
                 _startLampCost += 0.01f;
                 _level4Reached = true;
             }
-            else if (_timer >= 300 && !_level5Reached)
-            {
-                _startGasCost += 0.01f;
-                _startGeneratorCost += 0.01f;
-                _startLampCost += 0.01f;
-                _level5Reached = true;
-            }
-            else if (_timer >= 360)
+            else if (_timer >= 300)
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
