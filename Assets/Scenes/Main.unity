@@ -5683,8 +5683,8 @@ MonoBehaviour:
   _closedKrishka: {fileID: 495065098}
   _openedKrishka: {fileID: 141386281}
   _lampochka: {fileID: 1527333215}
-  RunOutOfFuel: {fileID: 8300000, guid: c381a47951fccfd4e957700982e64aac, type: 3}
-  RunOutOfDurability: {fileID: 8300000, guid: b20efe5ae50731e438bf0a290aa0c44a, type: 3}
+  RunOutOfFuel: {fileID: 8300000, guid: 166d37da3e0fc3449afeedd84963c35e, type: 3}
+  RunOutOfDurability: {fileID: 8300000, guid: 166d37da3e0fc3449afeedd84963c35e, type: 3}
   RunOutOfLamp: {fileID: 8300000, guid: ea75ea68c844c0e4284e5e4491f8d57c, type: 3}
   interactRaycaster: {fileID: 963194234}
   Light1: {fileID: 1091075634}
