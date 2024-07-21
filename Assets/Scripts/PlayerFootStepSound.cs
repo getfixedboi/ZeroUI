@@ -10,7 +10,6 @@ public class PlayerFootStepSound : MonoBehaviour
 
     public float delay;
     private float footstepTimer;
-    private bool isFirstStep = true;
 
     private void Awake()
     {
@@ -22,24 +21,14 @@ public class PlayerFootStepSound : MonoBehaviour
         if (controller.MoveInput == Vector3.zero)
         {
             footstepTimer = delay;
-            isFirstStep = true;
         }
         else
         {
-            if (isFirstStep)
+            footstepTimer -= Time.deltaTime;
+            if (footstepTimer <= 0f)
             {
                 source.PlayOneShot(GetRandomClip());
-                isFirstStep = false;
                 footstepTimer = delay;
-            }
-            else
-            {
-                footstepTimer -= Time.deltaTime;
-                if (footstepTimer <= 0f)
-                {
-                    source.PlayOneShot(GetRandomClip());
-                    footstepTimer = delay;
-                }
             }
         }
     }

@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -65,9 +64,16 @@ public class GameManager : Interactable
     public AudioClip WinningAmbient;
     public AudioSource PlayerSource;
     public AudioSource DoorSource;
+
+
+
+    public GameObject[] strelochki;
+    public AudioSource sourceSTRELOCHEK;
+    public AudioClip strelochaTik;
     protected override void Awake()
     {
         base.Awake();
+        //_timer = 200;
         CurrentGasCapacity = _maxGasCapacity;
         CurrentGeneratorDutability = _maxGeneratorDutability;
         CurrentLampDutability = _maxLampDutability;
@@ -137,11 +143,11 @@ public class GameManager : Interactable
 
     private void Update()
     {
-        // ClearConsole();
-        // Debug.Log($"time - {_timer}");
-        // Debug.Log($"gas - {CurrentGasCapacity}");
-        // Debug.Log($"generator - {CurrentGeneratorDutability}");
-        // Debug.Log($"lamp - {CurrentLampDutability}");
+        //ClearConsole();
+        //Debug.Log($"time - {_timer}");
+        //Debug.Log($"gas - {CurrentGasCapacity}");
+        //Debug.Log($"generator - {CurrentGeneratorDutability}");
+        //Debug.Log($"lamp - {CurrentLampDutability}");
 
         if (!StartGame)
         {
@@ -181,9 +187,10 @@ public class GameManager : Interactable
 
             if (_timer >= 60 && !_level1Reached)
             {
-                //_startGasCost += 0.01f;
-                //_startGeneratorCost += 0.01f;
-                //_startLampCost += 0.01f;
+              
+                sourceSTRELOCHEK.PlayOneShot(strelochaTik);
+                strelochki[0].SetActive(false);
+                strelochki[1].SetActive(true);
                 _level1Reached = true;
             }
             else if (_timer >= 120 && !_level2Reached)
@@ -191,13 +198,19 @@ public class GameManager : Interactable
                 _startGasCost += 0.01f;
                 _startGeneratorCost += 0.01f;
                 _startLampCost += 0.01f;
+                sourceSTRELOCHEK.PlayOneShot(strelochaTik);
+                strelochki[1].SetActive(false);
+                strelochki[2].SetActive(true);
                 _level2Reached = true;
             }
             else if (_timer >= 180 && !_level3Reached)
             {
-                _startGasCost += 0.01f;
-                _startGeneratorCost += 0.01f;
-                _startLampCost += 0.01f;
+                //_startGasCost += 0.01f;
+                //_startGeneratorCost += 0.01f;
+                //_startLampCost += 0.01f;
+                sourceSTRELOCHEK.PlayOneShot(strelochaTik);
+                strelochki[2].SetActive(false);
+                strelochki[3].SetActive(true);
                 _level3Reached = true;
             }
             else if (_timer >= 240 && !_level4Reached)
@@ -205,6 +218,9 @@ public class GameManager : Interactable
                 _startGasCost += 0.01f;
                 _startGeneratorCost += 0.01f;
                 _startLampCost += 0.01f;
+                sourceSTRELOCHEK.PlayOneShot(strelochaTik);
+                strelochki[3].SetActive(false);
+                strelochki[4].SetActive(true);
                 _level4Reached = true;
             }
             else if (_timer >= 300)
@@ -213,6 +229,9 @@ public class GameManager : Interactable
                 DoorSource.PlayOneShot(DoorSound);
                 PlayerSource.PlayOneShot(WinningAmbient);
                 interactRaycaster.enabled=false;
+                sourceSTRELOCHEK.PlayOneShot(strelochaTik);
+                strelochki[4].SetActive(false);
+                strelochki[5].SetActive(true);
                 EngineSound.SetActive(false);
                 this.enabled=false;
             }
