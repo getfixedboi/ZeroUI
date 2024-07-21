@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -43,6 +44,22 @@ public class GameManager : Interactable
     public GameObject _openedKrishka;
     [Header("Лампочка от генератора")]
     public GameObject _lampochka;
+    [Header("Для проигрыша")]
+    private bool gameEnd=false;
+    public AudioClip RunOutOfFuel;
+    public AudioClip RunOutOfDurability;
+    public AudioClip RunOutOfLamp;
+    public InteractRaycaster interactRaycaster;
+    public GameObject Light1;
+    public GameObject Light2;
+    public GameObject Lamp;
+    public Material BlackMaterial;
+    public GameObject Indicator;
+    public GameObject EngineSound;
+    [Space]
+    public UnityEngine.UI.Image DeathScreen;
+    public AudioSource DeathSoundSource;
+    public AudioClip HardBreath;
     protected override void Awake()
     {
         base.Awake();
@@ -125,10 +142,30 @@ public class GameManager : Interactable
         {
             return;
         }
-        else if (CurrentGasCapacity <= 0 || CurrentGeneratorDutability <= 0 || CurrentLampDutability <= 0)
+        //CurrentLampDutability-=.1f;
+        if(gameEnd)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            return;
         }
+
+        if (CurrentGasCapacity <= 0)
+        {
+            Lamp.GetComponent<Renderer>().material = BlackMaterial;
+            source.PlayOneShot(RunOutOfFuel);
+            StartCoroutine(C_Death());
+        }
+        else if(CurrentGeneratorDutability <= 0)
+        {
+            Lamp.GetComponent<Renderer>().material = BlackMaterial;
+            source.PlayOneShot(RunOutOfDurability);
+            StartCoroutine(C_Death());
+        }
+        else if(CurrentLampDutability <= 0)
+        {
+            Lamp.SetActive(false);
+            source.PlayOneShot(RunOutOfLamp);
+            StartCoroutine(C_Death());
+        }   
         else
         {
             _timer += Time.deltaTime;
@@ -199,5 +236,28 @@ public class GameManager : Interactable
     public void StartCD()
     {
         StartCoroutine(C_InteractCD());
+    }
+    public IEnumerator C_Death()
+    {
+        gameEnd=true;
+        interactRaycaster.enabled=false;
+        Light1.SetActive(false);
+        Light2.SetActive(false);
+        Indicator.SetActive(false);
+        EngineSound.SetActive(false);
+
+        yield return new WaitForSeconds(2f);
+        source.PlayOneShot(HardBreath);
+
+        float counter=0;
+        while(counter<=100)
+        {
+            DeathScreen.color = new Color(DeathScreen.color.r,DeathScreen.color.g,DeathScreen.color.b,counter/100);
+            DeathSoundSource.volume = counter/100;
+            counter++;
+            yield return new WaitForSeconds(.04f);
+        }
+        yield return new WaitForSeconds(1f);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
