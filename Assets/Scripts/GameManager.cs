@@ -31,16 +31,16 @@ public class GameManager : Interactable
     public bool _interactCD = false;
 
     [HideInInspector]
-    public bool _gasTankOpened = false;
+    public bool GasTankOpened = false;
 
     [Header("Interact sounds")]
     [SerializeField] private AudioClip _gasolineSound;
-    [SerializeField] private AudioClip _wrenchSound;
+    public AudioClip _wrenchSound;
     [SerializeField] private AudioClip _hammerSound;
     public AudioClip _lampSound;
     [Header("Крышки от генератора")]
-    [SerializeField] private GameObject _closedKrishka;
-    [SerializeField] private GameObject _openedKrishka;
+    public GameObject _closedKrishka;
+    public GameObject _openedKrishka;
     [Header("Лампочка от генератора")]
     public GameObject _lampochka;
     protected override void Awake()
@@ -66,7 +66,7 @@ public class GameManager : Interactable
             {
                 case ItemHandler.TypeList.hammer:
                     {
-                        if (!_gasTankOpened)
+                        if (!GasTankOpened)
                         {
                             source.PlayOneShot(_hammerSound);
                             StartCoroutine(C_InteractCD());
@@ -84,7 +84,7 @@ public class GameManager : Interactable
                     }
                 case ItemHandler.TypeList.gasoline:
                     {
-                        if (_gasTankOpened)
+                        if (GasTankOpened)
                         {
                             source.PlayOneShot(_gasolineSound);
                             StartCoroutine(C_InteractCD());
@@ -100,28 +100,6 @@ public class GameManager : Interactable
                         }
                         break;
                     }
-                case ItemHandler.TypeList.wrench:
-                    {
-                        if (_gasTankOpened)
-                        {
-                            source.PlayOneShot(_wrenchSound);
-                            StartCoroutine(C_InteractCD());
-                            _gasTankOpened = false;
-
-                            _openedKrishka.SetActive(false);
-                            _closedKrishka.SetActive(true);
-                        }
-                        else
-                        {
-                            source.PlayOneShot(_wrenchSound);
-                            StartCoroutine(C_InteractCD());
-                            _gasTankOpened = true;
-
-                            _openedKrishka.SetActive(true);
-                            _closedKrishka.SetActive(false);
-                        }
-                        break;
-                    }
                 default:
                     {
                         source.PlayOneShot(errorSound);
@@ -131,17 +109,17 @@ public class GameManager : Interactable
         }
         else
         {
-            source.PlayOneShot(clip);
+            source.PlayOneShot(errorSound);
         }
     }
 
     private void Update()
     {
-        ClearConsole();
-        Debug.Log($"time - {_timer}");
-        Debug.Log($"gas - {CurrentGasCapacity}");
-        Debug.Log($"generator - {CurrentGeneratorDutability}");
-        Debug.Log($"lamp - {CurrentLampDutability}");
+        // ClearConsole();
+        // Debug.Log($"time - {_timer}");
+        // Debug.Log($"gas - {CurrentGasCapacity}");
+        // Debug.Log($"generator - {CurrentGeneratorDutability}");
+        // Debug.Log($"lamp - {CurrentLampDutability}");
 
         if (!StartGame)
         {
@@ -217,5 +195,9 @@ public class GameManager : Interactable
         _interactCD = true;
         yield return new WaitForSeconds(1f);
         _interactCD = false;
+    }
+    public void StartCD()
+    {
+        StartCoroutine(C_InteractCD());
     }
 }

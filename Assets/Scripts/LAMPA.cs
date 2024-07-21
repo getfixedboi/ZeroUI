@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class LAMPA : Interactable
 {
-    public GameManager GameManager;
+    public GameManager gameManager;
     public override void OnFocus()
     {
 
@@ -12,17 +12,13 @@ public class LAMPA : Interactable
 
     public override void OnInteract()
     {
-        if (!GameManager._gasTankOpened && ItemHandler.CurrentType == ItemHandler.TypeList.lamp && GameManager.StartGame)
+        if (!gameManager.GasTankOpened && ItemHandler.CurrentType == ItemHandler.TypeList.lamp && gameManager.StartGame && !gameManager._interactCD)
         {
-            GameManager._lampochka.SetActive(false);
+            gameManager._lampochka.SetActive(false);
             ItemHandler.CurrentType = ItemHandler.TypeList.none;
-            source.PlayOneShot(GameManager._lampSound);
+            source.PlayOneShot(gameManager._lampSound);
             StartCoroutine(C_InteractCD());
-           GameManager.CurrentLampDutability += GameManager._maxLampDutability * 0.25f;
-            if (GameManager.CurrentLampDutability > GameManager._maxLampDutability)
-            {
-                GameManager.CurrentLampDutability = GameManager._maxLampDutability;
-            }
+            gameManager.CurrentLampDutability = gameManager._maxLampDutability;
         }
         else
         {
@@ -37,9 +33,9 @@ public class LAMPA : Interactable
 
     private IEnumerator C_InteractCD()
     {
-       GameManager._interactCD = true;
+        gameManager._interactCD = true;
         yield return new WaitForSeconds(.5f);
-       GameManager._interactCD = false;
+        gameManager._interactCD = false;
     }
 
 
