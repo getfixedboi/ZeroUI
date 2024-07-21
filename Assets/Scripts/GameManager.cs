@@ -59,6 +59,12 @@ public class GameManager : Interactable
     public UnityEngine.UI.Image DeathScreen;
     public AudioSource DeathSoundSource;
     public AudioClip HardBreath;
+    [Header("Для победы")]
+    public GameObject ClosedDoor;
+    public AudioClip DoorSound;
+    public AudioClip WinningAmbient;
+    public AudioSource PlayerSource;
+    public AudioSource DoorSource;
     protected override void Awake()
     {
         base.Awake();
@@ -141,7 +147,7 @@ public class GameManager : Interactable
         {
             return;
         }
-        CurrentGeneratorDutability-=.1f;
+        
         if(gameEnd)
         {
             return;
@@ -203,7 +209,12 @@ public class GameManager : Interactable
             }
             else if (_timer >= 300)
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                ClosedDoor.SetActive(false);
+                DoorSource.PlayOneShot(DoorSound);
+                PlayerSource.PlayOneShot(WinningAmbient);
+                interactRaycaster.enabled=false;
+                EngineSound.SetActive(false);
+                this.enabled=false;
             }
 
         }
