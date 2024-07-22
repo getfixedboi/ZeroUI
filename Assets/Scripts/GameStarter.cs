@@ -14,7 +14,7 @@ public class GameStarter : Interactable
 
     public override void OnInteract()
     {
-        if (ItemHandler.CurrentType == ItemHandler.TypeList.none)
+        if (ItemHandler.CurrentType == ItemHandler.TypeList.none && !manager.StartGame)
         {
             gameObject.GetComponent<Renderer>().material = PressedButton;
             gameObject.transform.position = new Vector3(gameObject.transform.position.x,gameObject.transform.position.y,gameObject.transform.position.z-0.03f);

@@ -5,6 +5,7 @@ using UnityEngine;
 public class LAMPA : Interactable
 {
     public GameManager gameManager;
+    public Light popokKakObichno;
     public override void OnFocus()
     {
 
@@ -19,6 +20,8 @@ public class LAMPA : Interactable
             source.PlayOneShot(gameManager._lampSound);
             StartCoroutine(C_InteractCD());
             gameManager.CurrentLampDutability = gameManager._maxLampDutability;
+            popokKakObichno.intensity = 1f;
+
         }
         else
         {

@@ -70,10 +70,17 @@ public class GameManager : Interactable
     public GameObject[] strelochki;
     public AudioSource sourceSTRELOCHEK;
     public AudioClip strelochaTik;
+
+
+    public AudioClip vstuplenie;
+    public UnityEngine.UI.Image vstupitScreen;
+
+    public AudioSource vstuplenieSource;
     protected override void Awake()
     {
         base.Awake();
         //_timer = 200;
+        StartCoroutine(C_Vstuplenie());
         CurrentGasCapacity = _maxGasCapacity;
         CurrentGeneratorDutability = _maxGeneratorDutability;
         CurrentLampDutability = _maxLampDutability;
@@ -187,7 +194,9 @@ public class GameManager : Interactable
 
             if (_timer >= 60 && !_level1Reached)
             {
-              
+                _startGasCost += 0.008f;
+                _startGeneratorCost += 0.008f;
+                _startLampCost += 0.01f;
                 sourceSTRELOCHEK.PlayOneShot(strelochaTik);
                 strelochki[0].SetActive(false);
                 strelochki[1].SetActive(true);
@@ -195,9 +204,9 @@ public class GameManager : Interactable
             }
             else if (_timer >= 120 && !_level2Reached)
             {
-                _startGasCost += 0.01f;
-                _startGeneratorCost += 0.01f;
-                _startLampCost += 0.01f;
+                _startGasCost += 0.003f;
+                _startGeneratorCost += 0.003f;
+                _startLampCost += 0.004f;
                 sourceSTRELOCHEK.PlayOneShot(strelochaTik);
                 strelochki[1].SetActive(false);
                 strelochki[2].SetActive(true);
@@ -205,9 +214,9 @@ public class GameManager : Interactable
             }
             else if (_timer >= 180 && !_level3Reached)
             {
-                //_startGasCost += 0.01f;
-                //_startGeneratorCost += 0.01f;
-                //_startLampCost += 0.01f;
+                _startGasCost += 0.003f;
+                _startGeneratorCost += 0.003f;
+                _startLampCost += 0.004f;
                 sourceSTRELOCHEK.PlayOneShot(strelochaTik);
                 strelochki[2].SetActive(false);
                 strelochki[3].SetActive(true);
@@ -215,9 +224,9 @@ public class GameManager : Interactable
             }
             else if (_timer >= 240 && !_level4Reached)
             {
-                _startGasCost += 0.01f;
-                _startGeneratorCost += 0.01f;
-                _startLampCost += 0.01f;
+                _startGasCost += 0.002f;
+                _startGeneratorCost += 0.002f;
+                _startLampCost += 0.003f;
                 sourceSTRELOCHEK.PlayOneShot(strelochaTik);
                 strelochki[3].SetActive(false);
                 strelochki[4].SetActive(true);
@@ -225,6 +234,9 @@ public class GameManager : Interactable
             }
             else if (_timer >= 300)
             {
+                CurrentGasCapacity = _maxGasCapacity;
+                CurrentGeneratorDutability = _maxGeneratorDutability;
+                CurrentLampDutability = _maxLampDutability;
                 ClosedDoor.SetActive(false);
                 DoorSource.PlayOneShot(DoorSound);
                 PlayerSource.PlayOneShot(WinningAmbient);
@@ -259,6 +271,22 @@ public class GameManager : Interactable
     {
         StartCoroutine(C_InteractCD());
     }
+    public bool IsCatscene = false;
+    public IEnumerator C_Vstuplenie()
+    {
+        IsCatscene = true;
+        vstuplenieSource.PlayOneShot(vstuplenie);
+        float counter = 100;
+        while (counter >= 0)
+        {
+            vstupitScreen.color = new Color(vstupitScreen.color.r, vstupitScreen.color.g, vstupitScreen.color.b, counter / 100);
+           
+            counter--;
+            yield return new WaitForSeconds(.04f);
+        }
+        yield return new WaitForSeconds(1f);
+        IsCatscene = false;
+    }
     public IEnumerator C_Death()
     {
         gameEnd=true;
@@ -269,7 +297,7 @@ public class GameManager : Interactable
         EngineSound.SetActive(false);
 
         yield return new WaitForSeconds(2f);
-        source.PlayOneShot(HardBreath);
+        DeathSoundSource.PlayOneShot(HardBreath);
 
         float counter=0;
         while(counter<=100)
