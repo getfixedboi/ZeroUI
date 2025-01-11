@@ -8,15 +8,26 @@ using UnityEngine.SceneManagement;
 public class GameManager : Interactable
 {
     [SerializeField][Range(1, 100)] private float _maxGasCapacity;
+
+    [SerializeField][Range(1, 100)] private float _maxHeatCapacity;
+    [Range(1, 100)] public float _maxOxygenCapacity;
+
     [SerializeField][Range(1, 100)] private float _maxGeneratorDutability;
     [Range(1, 100)] public float _maxLampDutability;
     [Space]
     [HideInInspector] public float CurrentGasCapacity;
+
+    [HideInInspector] public float CurrentHeatCapacity;
+    [HideInInspector] public float CurrentOxygenCapacity;
+
     [HideInInspector] public float CurrentGeneratorDutability;
     [HideInInspector] public float CurrentLampDutability;
     [SerializeField][Range(0, 5)] private float _startGasCost;
     [SerializeField][Range(0, 5)] private float _startGeneratorCost;
     [SerializeField][Range(0, 5)] private float _startLampCost;
+
+    [SerializeField][Range(0, 5)] private float _startHeatCost;
+    [SerializeField][Range(0, 5)] private float _startOxygenCost;
     private float _timer = 0;
     [Space]
     public bool StartGame = false;
@@ -36,6 +47,7 @@ public class GameManager : Interactable
     [SerializeField] private AudioClip _gasolineSound;
     public AudioClip _wrenchSound;
     [SerializeField] private AudioClip _hammerSound;
+    [SerializeField] private AudioClip _ognetushitelSound;
     public AudioClip _lampSound;
     [Header("Крышки от генератора")]
     public GameObject _closedKrishka;
@@ -43,9 +55,10 @@ public class GameManager : Interactable
     [Header("Лампочка от генератора")]
     public GameObject _lampochka;
     [Header("Для проигрыша")]
-    private bool gameEnd=false;
+    private bool gameEnd = false;
     public AudioClip RunOutOfFuel;
     public AudioClip RunOutOfDurability;
+    public AudioClip Overheat;
     public AudioClip RunOutOfLamp;
     public InteractRaycaster interactRaycaster;
     public GameObject Light1;
@@ -53,6 +66,7 @@ public class GameManager : Interactable
     public GameObject Lamp;
     public Material BlackMaterial;
     public GameObject Indicator;
+    public GameObject Indicator1;
     public GameObject EngineSound;
     [Space]
     public UnityEngine.UI.Image DeathScreen;
@@ -75,6 +89,10 @@ public class GameManager : Interactable
     public AudioClip vstuplenie;
     public UnityEngine.UI.Image vstupitScreen;
 
+    public Vent vent;
+
+    public Vavle vavle;
+
     public AudioSource vstuplenieSource;
     protected override void Awake()
     {
@@ -84,6 +102,9 @@ public class GameManager : Interactable
         CurrentGasCapacity = _maxGasCapacity;
         CurrentGeneratorDutability = _maxGeneratorDutability;
         CurrentLampDutability = _maxLampDutability;
+
+        CurrentHeatCapacity = _maxHeatCapacity;
+        CurrentOxygenCapacity = _maxOxygenCapacity;
 
         _openedKrishka.SetActive(false);
         _closedKrishka.SetActive(true);
@@ -135,6 +156,17 @@ public class GameManager : Interactable
                         }
                         break;
                     }
+                case ItemHandler.TypeList.ognetushitel:
+                    {
+                        source.PlayOneShot(_ognetushitelSound);///
+                        StartCoroutine(C_InteractCD());
+                        CurrentHeatCapacity += _maxHeatCapacity * 0.25f;
+                        if (CurrentHeatCapacity > _maxHeatCapacity)
+                        {
+                            CurrentHeatCapacity = _maxHeatCapacity;
+                        }
+                        break;
+                    }
                 default:
                     {
                         source.PlayOneShot(errorSound);
@@ -160,8 +192,8 @@ public class GameManager : Interactable
         {
             return;
         }
-        
-        if(gameEnd)
+
+        if (gameEnd)
         {
             return;
         }
@@ -172,18 +204,28 @@ public class GameManager : Interactable
             source.PlayOneShot(RunOutOfFuel);
             StartCoroutine(C_Death());
         }
-        else if(CurrentGeneratorDutability <= 0)
+        else if (CurrentGeneratorDutability <= 0)
         {
             Lamp.GetComponent<Renderer>().material = BlackMaterial;
             source.PlayOneShot(RunOutOfDurability);
             StartCoroutine(C_Death());
         }
-        else if(CurrentLampDutability <= 0)
+        else if (CurrentHeatCapacity <= 0)
+        {
+            Lamp.GetComponent<Renderer>().material = BlackMaterial;
+            source.PlayOneShot(Overheat);
+            StartCoroutine(C_Death());
+        }
+        else if (CurrentLampDutability <= 0)
         {
             Lamp.SetActive(false);
             source.PlayOneShot(RunOutOfLamp);
             StartCoroutine(C_Death());
-        }   
+        }
+        else if (CurrentOxygenCapacity <= 0)
+        {
+            StartCoroutine(C_OxygenDeath());
+        }
         else
         {
             _timer += Time.deltaTime;
@@ -192,11 +234,18 @@ public class GameManager : Interactable
             CurrentGeneratorDutability -= _maxGeneratorDutability * _startGeneratorCost * Time.deltaTime;
             CurrentLampDutability -= _maxLampDutability * _startLampCost * Time.deltaTime;
 
+            CurrentOxygenCapacity -= _maxOxygenCapacity * _startOxygenCost * Time.deltaTime;
+            CurrentHeatCapacity -= _maxHeatCapacity * _startHeatCost * Time.deltaTime;
+
             if (_timer >= 60 && !_level1Reached)
             {
-                _startGasCost += 0.008f;
-                _startGeneratorCost += 0.008f;
+                _startGasCost += 0.002f;
+                _startGeneratorCost += 0.002f;
                 _startLampCost += 0.01f;
+
+                _startHeatCost += 0.01f;
+                _startOxygenCost += 0.01f;
+
                 sourceSTRELOCHEK.PlayOneShot(strelochaTik);
                 strelochki[0].SetActive(false);
                 strelochki[1].SetActive(true);
@@ -204,9 +253,13 @@ public class GameManager : Interactable
             }
             else if (_timer >= 120 && !_level2Reached)
             {
-                _startGasCost += 0.003f;
-                _startGeneratorCost += 0.003f;
-                _startLampCost += 0.004f;
+                _startGasCost += 0.001f;
+                _startGeneratorCost += 0.001f;
+                _startLampCost += 0.002f;
+
+                _startHeatCost += 0.01f;
+                _startOxygenCost += 0.01f;
+
                 sourceSTRELOCHEK.PlayOneShot(strelochaTik);
                 strelochki[1].SetActive(false);
                 strelochki[2].SetActive(true);
@@ -214,9 +267,13 @@ public class GameManager : Interactable
             }
             else if (_timer >= 180 && !_level3Reached)
             {
-                _startGasCost += 0.003f;
-                _startGeneratorCost += 0.003f;
-                _startLampCost += 0.004f;
+                _startGasCost += 0.001f;
+                _startGeneratorCost += 0.001f;
+                _startLampCost += 0.002f;
+
+                _startHeatCost += 0.01f;
+                _startOxygenCost += 0.01f;
+
                 sourceSTRELOCHEK.PlayOneShot(strelochaTik);
                 strelochki[2].SetActive(false);
                 strelochki[3].SetActive(true);
@@ -224,9 +281,13 @@ public class GameManager : Interactable
             }
             else if (_timer >= 240 && !_level4Reached)
             {
-                _startGasCost += 0.002f;
-                _startGeneratorCost += 0.002f;
-                _startLampCost += 0.003f;
+                _startGasCost += 0.001f;
+                _startGeneratorCost += 0.001f;
+                _startLampCost += 0.001f;
+
+                _startHeatCost += 0.01f;
+                _startOxygenCost += 0.01f;
+
                 sourceSTRELOCHEK.PlayOneShot(strelochaTik);
                 strelochki[3].SetActive(false);
                 strelochki[4].SetActive(true);
@@ -237,15 +298,19 @@ public class GameManager : Interactable
                 CurrentGasCapacity = _maxGasCapacity;
                 CurrentGeneratorDutability = _maxGeneratorDutability;
                 CurrentLampDutability = _maxLampDutability;
+
+                CurrentHeatCapacity = _maxHeatCapacity;
+                CurrentOxygenCapacity = _maxOxygenCapacity;
+
                 ClosedDoor.SetActive(false);
                 DoorSource.PlayOneShot(DoorSound);
                 PlayerSource.PlayOneShot(WinningAmbient);
-                interactRaycaster.enabled=false;
+                interactRaycaster.enabled = false;
                 sourceSTRELOCHEK.PlayOneShot(strelochaTik);
                 strelochki[4].SetActive(false);
                 strelochki[5].SetActive(true);
                 EngineSound.SetActive(false);
-                this.enabled=false;
+                this.enabled = false;
             }
 
         }
@@ -280,7 +345,7 @@ public class GameManager : Interactable
         while (counter >= 0)
         {
             vstupitScreen.color = new Color(vstupitScreen.color.r, vstupitScreen.color.g, vstupitScreen.color.b, counter / 100);
-           
+
             counter--;
             yield return new WaitForSeconds(.04f);
         }
@@ -289,21 +354,44 @@ public class GameManager : Interactable
     }
     public IEnumerator C_Death()
     {
-        gameEnd=true;
-        interactRaycaster.enabled=false;
+        gameEnd = true;
+        interactRaycaster.enabled = false;
         Light1.SetActive(false);
         Light2.SetActive(false);
         Indicator.SetActive(false);
+        Indicator1.SetActive(false);
         EngineSound.SetActive(false);
 
         yield return new WaitForSeconds(2f);
         DeathSoundSource.PlayOneShot(HardBreath);
 
-        float counter=0;
-        while(counter<=100)
+        float counter = 0;
+        while (counter <= 100)
         {
-            DeathScreen.color = new Color(DeathScreen.color.r,DeathScreen.color.g,DeathScreen.color.b,counter/100);
-            DeathSoundSource.volume = counter/100;
+            DeathScreen.color = new Color(DeathScreen.color.r, DeathScreen.color.g, DeathScreen.color.b, counter / 100);
+            DeathSoundSource.volume = counter / 100;
+            counter++;
+            yield return new WaitForSeconds(.04f);
+        }
+        yield return new WaitForSeconds(1f);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+    public IEnumerator C_OxygenDeath()
+    {
+        gameEnd = true;
+        interactRaycaster.enabled = false;
+
+        vavle.enabled = false;
+        vent.enabled = false;
+
+        yield return new WaitForSeconds(2f);
+        DeathSoundSource.PlayOneShot(HardBreath);
+
+        float counter = 0;
+        while (counter <= 100)
+        {
+            DeathScreen.color = new Color(DeathScreen.color.r, DeathScreen.color.g, DeathScreen.color.b, counter / 100);
+            DeathSoundSource.volume = counter / 100;
             counter++;
             yield return new WaitForSeconds(.04f);
         }
