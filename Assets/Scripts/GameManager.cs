@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Data;
+using Mono.Data.Sqlite;
 
 [RequireComponent(typeof(Collider))]
 [DisallowMultipleComponent]
@@ -94,6 +96,14 @@ public class GameManager : Interactable
     public Vavle vavle;
 
     public AudioSource vstuplenieSource;
+
+    //for database suka blyat
+    private float db_add_gas = 0;
+    private float db_add_durability = 0;
+    public static int db_add_lamp = 0;
+    private float db_add_heat = 0;
+    [SerializeField] private SaveAdmin saveAdmin;
+
     protected override void Awake()
     {
         base.Awake();
@@ -108,6 +118,8 @@ public class GameManager : Interactable
 
         _openedKrishka.SetActive(false);
         _closedKrishka.SetActive(true);
+
+        saveAdmin.LoadValuesFromXML_Outscene();
     }
 
     public override void OnInteract()
@@ -129,7 +141,12 @@ public class GameManager : Interactable
                             CurrentGeneratorDutability += _maxGeneratorDutability * 0.25f;
                             if (CurrentGeneratorDutability > _maxGeneratorDutability)
                             {
+                                db_add_durability += CurrentGeneratorDutability - _maxGeneratorDutability;
                                 CurrentGeneratorDutability = _maxGeneratorDutability;
+                            }
+                            else
+                            {
+                                db_add_durability += _maxGeneratorDutability * 0.25f;
                             }
                         }
                         else
@@ -147,7 +164,12 @@ public class GameManager : Interactable
                             CurrentGasCapacity += _maxGasCapacity * 0.25f;
                             if (CurrentGasCapacity > _maxGasCapacity)
                             {
+                                db_add_gas += CurrentGasCapacity - _maxGasCapacity;
                                 CurrentGasCapacity = _maxGasCapacity;
+                            }
+                            else
+                            {
+                                db_add_gas += _maxGasCapacity * 0.25f;
                             }
                         }
                         else
@@ -163,7 +185,12 @@ public class GameManager : Interactable
                         CurrentHeatCapacity += _maxHeatCapacity * 0.25f;
                         if (CurrentHeatCapacity > _maxHeatCapacity)
                         {
+                            db_add_heat += CurrentHeatCapacity - _maxHeatCapacity;
                             CurrentHeatCapacity = _maxHeatCapacity;
+                        }
+                        else
+                        {
+                            db_add_heat += _maxHeatCapacity * 0.25f;
                         }
                         break;
                     }
@@ -230,12 +257,12 @@ public class GameManager : Interactable
         {
             _timer += Time.deltaTime;
 
-            CurrentGasCapacity -= _maxGasCapacity * _startGasCost * Time.deltaTime;
-            CurrentGeneratorDutability -= _maxGeneratorDutability * _startGeneratorCost * Time.deltaTime;
-            CurrentLampDutability -= _maxLampDutability * _startLampCost * Time.deltaTime;
+            CurrentGasCapacity -= _maxGasCapacity * _startGasCost * Time.deltaTime * SaveAdmin.GasMul;
+            CurrentGeneratorDutability -= _maxGeneratorDutability * _startGeneratorCost * Time.deltaTime * SaveAdmin.DurMul;
+            CurrentLampDutability -= _maxLampDutability * _startLampCost * Time.deltaTime * SaveAdmin.LampMul;
 
             CurrentOxygenCapacity -= _maxOxygenCapacity * _startOxygenCost * Time.deltaTime;
-            CurrentHeatCapacity -= _maxHeatCapacity * _startHeatCost * Time.deltaTime;
+            CurrentHeatCapacity -= _maxHeatCapacity * _startHeatCost * Time.deltaTime * SaveAdmin.TempMul;
 
             if (_timer >= 60 && !_level1Reached)
             {
@@ -295,6 +322,8 @@ public class GameManager : Interactable
             }
             else if (_timer >= 300)
             {
+                SaveDataToDB();
+
                 CurrentGasCapacity = _maxGasCapacity;
                 CurrentGeneratorDutability = _maxGeneratorDutability;
                 CurrentLampDutability = _maxLampDutability;
@@ -354,6 +383,7 @@ public class GameManager : Interactable
     }
     public IEnumerator C_Death()
     {
+        SaveDataToDB();
         gameEnd = true;
         interactRaycaster.enabled = false;
         Light1.SetActive(false);
@@ -378,6 +408,7 @@ public class GameManager : Interactable
     }
     public IEnumerator C_OxygenDeath()
     {
+        SaveDataToDB();
         gameEnd = true;
         interactRaycaster.enabled = false;
 
@@ -397,5 +428,35 @@ public class GameManager : Interactable
         }
         yield return new WaitForSeconds(1f);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    private void SaveDataToDB()
+    {
+        using (var connection = new SqliteConnection(Reg.dbName))
+        {
+            connection.Open();
+
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "UPDATE userGasRefilled SET gas = gas + @gasToAdd WHERE username = @username;";
+                command.Parameters.AddWithValue("@username", Reg.currentUser);
+                command.Parameters.AddWithValue("@gasToAdd", db_add_gas);
+                command.ExecuteNonQuery();
+
+                command.CommandText = "UPDATE userGenDurRefilled SET genDur = genDur + @genDurToAdd WHERE username = @username;";
+                command.Parameters.AddWithValue("@genDurToAdd", db_add_durability);
+                command.ExecuteNonQuery();
+
+                command.CommandText = "UPDATE userLampChanged SET lampCount = lampCount + @lampCountToAdd WHERE username = @username;";
+                command.Parameters.AddWithValue("@lampCountToAdd", db_add_lamp);
+                command.ExecuteNonQuery();
+
+                command.CommandText = "UPDATE userHeatReduced SET heat = heat + @heatToAdd WHERE username = @username;";
+                command.Parameters.AddWithValue("@heatToAdd", db_add_heat);
+                command.ExecuteNonQuery();
+            }
+
+            connection.Close();
+        }
     }
 }

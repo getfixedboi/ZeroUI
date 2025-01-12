@@ -21,7 +21,7 @@ public class LAMPA : Interactable
             StartCoroutine(C_InteractCD());
             gameManager.CurrentLampDutability = gameManager._maxLampDutability;
             popokKakObichno.intensity = 1f;
-
+            GameManager.db_add_lamp+=1;
         }
         else
         {
