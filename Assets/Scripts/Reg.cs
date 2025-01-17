@@ -40,11 +40,11 @@ public class Reg : MonoBehaviour
                 command.ExecuteNonQuery();
 
                 // Создание таблицы 2
-                command.CommandText = "CREATE TABLE IF NOT EXISTS userVisiting (username VARCHAR(20), account_creation_date DATETIME, last_visit_date DATETIME, FOREIGN KEY(username) REFERENCES users(username));";
+                command.CommandText = "CREATE TABLE IF NOT EXISTS userVisiting (username VARCHAR(20), account_creation_date DATETIME, last_visit_date DATETIME, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE);";
                 command.ExecuteNonQuery();
 
                 // Создание таблицы 3
-                command.CommandText = "CREATE TABLE IF NOT EXISTS userStats (username VARCHAR(20), gas float, genDur float, lampCount int,heat float, oxygen float,FOREIGN KEY(username) REFERENCES users(username));";
+                command.CommandText = "CREATE TABLE IF NOT EXISTS userStats (username VARCHAR(20), gas float, genDur float, lampCount int,heat float, oxygen float,FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE);";
                 command.ExecuteNonQuery();
 
                 // Создание таблицы 4
@@ -52,12 +52,12 @@ public class Reg : MonoBehaviour
                 command.ExecuteNonQuery();
 
                 // Создание таблицы 5
-                command.CommandText = "CREATE TABLE IF NOT EXISTS userExtraStats (username VARCHAR(20), deaths int, timePassed, FOREIGN KEY(username) REFERENCES users(username));";
+                command.CommandText = "CREATE TABLE IF NOT EXISTS userExtraStats (username VARCHAR(20), deaths int, timePassed, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE);";
                 command.ExecuteNonQuery();
 
                 // Заполнение таблицы difficult с одной записью
-                // command.CommandText = "INSERT INTO difficult (setting_id, GasMul, DurMul, LampMul, TempMul) VALUES (1, 1.0, 1.0, 1.0, 1.0) ;";
-                // command.ExecuteNonQuery();
+                //command.CommandText = "INSERT INTO difficult (setting_id, GasMul, DurMul, LampMul, TempMul) VALUES (1, 1.0, 1.0, 1.0, 1.0) ;";
+                //command.ExecuteNonQuery();
             }
 
             connection.Close();
