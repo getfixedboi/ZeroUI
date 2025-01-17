@@ -6,6 +6,7 @@ using System.Data;
 using Mono.Data.Sqlite;
 using TMPro;
 using System;
+using UnityEngine.UIElements;
 
 
 public class DeleteUser : MonoBehaviour
@@ -20,6 +21,8 @@ public class DeleteUser : MonoBehaviour
     [SerializeField] private TMP_InputField oxygenField;
     [SerializeField] private TMP_InputField deathsField;
     [SerializeField] private TMP_InputField timePassedField;
+    [SerializeField] private Transform scrollView;
+    [SerializeField] private GameObject userItemPrefab;
 
     public void DeleteUserPoId()
     {
@@ -181,5 +184,37 @@ public class DeleteUser : MonoBehaviour
             connection.Close();
         }
     }
+
+    public void ShowUsers()
+    {
+        foreach (Transform child in scrollView)
+        {
+            Destroy(child.gameObject);
+        }
+
+        using (var connection = new SqliteConnection(Reg.dbName))
+        {
+            connection.Open();
+
+            using (var command = connection.CreateCommand())
+            {
+                // Запрос для получения всех ID пользователей
+                command.CommandText = "SELECT username FROM users;";
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string username = reader["username"].ToString();
+                        // Создаем новый элемент списка
+                        GameObject userItem = Instantiate(userItemPrefab, scrollView);
+                        userItem.GetComponentInChildren<Text>().text = username; // Устанавливаем имя пользователя
+                    }
+                }
+            }
+
+            connection.Close();
+        }
+    }
 }
+
 
