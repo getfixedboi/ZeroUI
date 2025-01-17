@@ -12,6 +12,14 @@ public class DeleteUser : MonoBehaviour
 {
     [SerializeField] private TMP_InputField idField;
     [SerializeField] private Text errorText;
+    //field
+    [SerializeField] private TMP_InputField gasField;
+    [SerializeField] private TMP_InputField durField;
+    [SerializeField] private TMP_InputField lampField;
+    [SerializeField] private TMP_InputField heatField;
+    [SerializeField] private TMP_InputField oxygenField;
+    [SerializeField] private TMP_InputField deathsField;
+    [SerializeField] private TMP_InputField timePassedField;
 
     public void DeleteUserPoId()
     {
@@ -54,6 +62,15 @@ public class DeleteUser : MonoBehaviour
 
             connection.Close();
         }
+    }
+
+    public void LoadUserData()
+    {
+
+    }
+    public void SaveUserData()
+    {
+        
     }
 
 }
