@@ -66,12 +66,120 @@ public class DeleteUser : MonoBehaviour
 
     public void LoadUserData()
     {
+        string username = idField.text;
 
+        using (var connection = new SqliteConnection(Reg.dbName))
+        {
+            connection.Open();
+
+            using (var command = connection.CreateCommand())
+            {
+                // Проверяем, существует ли пользователь с данным именем
+                command.CommandText = "SELECT * FROM userStats WHERE username = @username;";
+                command.Parameters.AddWithValue("@username", username);
+
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        // Загружаем данные пользователя из userStats
+                        gasField.text = reader["gas"].ToString();
+                        durField.text = reader["genDur"].ToString();
+                        lampField.text = reader["lampCount"].ToString();
+                        heatField.text = reader["heat"].ToString();
+                        oxygenField.text = reader["oxygen"].ToString();
+                    }
+                    else
+                    {
+                        errorText.text = "Пользователь не найден.";
+                        return; // Выходим, если пользователь не найден
+                    }
+                }
+
+                // Теперь загружаем дополнительные данные из userExtraStats
+                command.CommandText = "SELECT * FROM userExtraStats WHERE username = @username;";
+                using (IDataReader readerExtra = command.ExecuteReader())
+                {
+                    if (readerExtra.Read())
+                    {
+                        // Загружаем данные пользователя из userExtraStats
+                        deathsField.text = readerExtra["deaths"].ToString();
+                        timePassedField.text = readerExtra["timePassed"].ToString();
+                    }
+                    else
+                    {
+                        errorText.text = "Дополнительные данные пользователя не найдены.";
+                    }
+                }
+            }
+
+            connection.Close();
+        }
     }
+
     public void SaveUserData()
     {
-        
-    }
+        string username = idField.text;
 
+        using (var connection = new SqliteConnection(Reg.dbName))
+        {
+            connection.Open();
+
+            using (var command = connection.CreateCommand())
+            {
+                // Проверяем, существует ли пользователь с данным именем в userStats
+                command.CommandText = "SELECT COUNT(*) FROM userStats WHERE username = @username;";
+                command.Parameters.AddWithValue("@username", username);
+                int countStats = Convert.ToInt32(command.ExecuteScalar());
+
+                if (countStats > 0)
+                {
+                    // Обновляем данные пользователя в userStats
+                    command.CommandText = "UPDATE userStats SET gas = @gas, genDur = @genDur, lampCount = @lampCount, heat = @heat, oxygen = @oxygen WHERE username = @username;";
+
+                    // Получаем значения из полей, устанавливаем 0 для пустых
+                    command.Parameters.Clear(); // Очищаем параметры перед повторным использованием
+                    command.Parameters.AddWithValue("@gas", string.IsNullOrEmpty(gasField.text) ? 0 : float.Parse(gasField.text));
+                    command.Parameters.AddWithValue("@genDur", string.IsNullOrEmpty(durField.text) ? 0 : float.Parse(durField.text));
+                    command.Parameters.AddWithValue("@lampCount", string.IsNullOrEmpty(lampField.text) ? 0 : int.Parse(lampField.text));
+                    command.Parameters.AddWithValue("@heat", string.IsNullOrEmpty(heatField.text) ? 0 : float.Parse(heatField.text));
+                    command.Parameters.AddWithValue("@oxygen", string.IsNullOrEmpty(oxygenField.text) ? 0 : float.Parse(oxygenField.text));
+                    command.Parameters.AddWithValue("@username", username);
+
+                    command.ExecuteNonQuery();
+
+                    // Проверяем, существует ли пользователь с данным именем в userExtraStats
+                    command.CommandText = "SELECT COUNT(*) FROM userExtraStats WHERE username = @username;";
+                    int countExtraStats = Convert.ToInt32(command.ExecuteScalar());
+
+                    if (countExtraStats > 0)
+                    {
+                        // Обновляем данные пользователя в userExtraStats
+                        command.CommandText = "UPDATE userExtraStats SET deaths = @deaths, timePassed = @timePassed WHERE username = @username;";
+
+                        // Получаем значения из полей, устанавливаем 0 для пустых
+                        command.Parameters.Clear(); // Очищаем параметры перед повторным использованием
+                        command.Parameters.AddWithValue("@deaths", string.IsNullOrEmpty(deathsField.text) ? 0 : int.Parse(deathsField.text));
+                        command.Parameters.AddWithValue("@timePassed", string.IsNullOrEmpty(timePassedField.text) ? 0 : float.Parse(timePassedField.text));
+                        command.Parameters.AddWithValue("@username", username);
+
+                        command.ExecuteNonQuery();
+
+                        errorText.text = $"Данные пользователя {username} обновлены.";
+                    }
+                    else
+                    {
+                        errorText.text = "Дополнительные данные пользователя не найдены.";
+                    }
+                }
+                else
+                {
+                    errorText.text = "Пользователь не найден.";
+                }
+            }
+
+            connection.Close();
+        }
+    }
 }
 

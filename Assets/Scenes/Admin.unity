@@ -7205,7 +7205,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1993480841}
         m_TargetAssemblyTypeName: DeleteUser, Assembly-CSharp
-        m_MethodName: DeleteUserPoId
+        m_MethodName: SaveUserData
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
