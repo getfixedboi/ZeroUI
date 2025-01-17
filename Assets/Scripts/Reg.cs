@@ -66,6 +66,7 @@ public class Reg : MonoBehaviour
 
     private bool Validation()
     {
+        errorText.text = "Invalid username or password";
         return usernameField.text != "" && passwordField.text != "" && usernameField.text.Length > 4 && passwordField.text.Length > 4 && passwordField.text == confirmPasswordField.text;
     }
 

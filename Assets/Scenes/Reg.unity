@@ -640,10 +640,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1254533639}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.34037486, y: 0.70814824}
-  m_AnchorMax: {x: 0.6825622, y: 0.9718149}
-  m_AnchoredPosition: {x: -2.5, y: 3.5}
-  m_SizeDelta: {x: -3.3200073, y: 0.36160278}
+  m_AnchorMin: {x: 0.36668715, y: 0.70814824}
+  m_AnchorMax: {x: 0.7076875, y: 0.9718149}
+  m_AnchoredPosition: {x: 0.8800049, y: 3.5}
+  m_SizeDelta: {x: -1.598999, y: 0.3616}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &144402701
 MonoBehaviour:
@@ -835,6 +835,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   usernameField: {fileID: 103025166}
   passwordField: {fileID: 2145403440}
+  errorText: {fileID: 144402701}
 --- !u!1 &340659264
 GameObject:
   m_ObjectHideFlags: 0
