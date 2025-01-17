@@ -40,20 +40,24 @@ public class Reg : MonoBehaviour
                 command.ExecuteNonQuery();
 
                 // Создание таблицы 2
-                command.CommandText = "CREATE TABLE IF NOT EXISTS userGasRefilled (username VARCHAR(20), gas FLOAT, FOREIGN KEY(username) REFERENCES users(username));";
+                command.CommandText = "CREATE TABLE IF NOT EXISTS userVisiting (username VARCHAR(20), account_creation_date DATETIME, last_visit_date DATETIME, FOREIGN KEY(username) REFERENCES users(username));";
                 command.ExecuteNonQuery();
 
                 // Создание таблицы 3
-                command.CommandText = "CREATE TABLE IF NOT EXISTS userGenDurRefilled (username VARCHAR(20), genDur float, FOREIGN KEY(username) REFERENCES users(username));";
+                command.CommandText = "CREATE TABLE IF NOT EXISTS userStats (username VARCHAR(20), gas float, genDur float, lampCount int,heat float, oxygen float,FOREIGN KEY(username) REFERENCES users(username));";
                 command.ExecuteNonQuery();
 
                 // Создание таблицы 4
-                command.CommandText = "CREATE TABLE IF NOT EXISTS userLampChanged (username VARCHAR(20), lampCount int, FOREIGN KEY(username) REFERENCES users(username));";
+                command.CommandText = "CREATE TABLE IF NOT EXISTS difficult (setting_id PRIMARY KEY,GasMul float , DurMul float, LampMul float, TempMul float);";
                 command.ExecuteNonQuery();
 
                 // Создание таблицы 5
-                command.CommandText = "CREATE TABLE IF NOT EXISTS userHeatReduced (username VARCHAR(20), heat float, FOREIGN KEY(username) REFERENCES users(username));";
+                command.CommandText = "CREATE TABLE IF NOT EXISTS userExtraStats (username VARCHAR(20), deaths int, timePassed, FOREIGN KEY(username) REFERENCES users(username));";
                 command.ExecuteNonQuery();
+
+                // Заполнение таблицы difficult с одной записью
+                // command.CommandText = "INSERT INTO difficult (setting_id, GasMul, DurMul, LampMul, TempMul) VALUES (1, 1.0, 1.0, 1.0, 1.0) ;";
+                // command.ExecuteNonQuery();
             }
 
             connection.Close();
@@ -120,6 +124,7 @@ public class Reg : MonoBehaviour
         {
             string username = usernameField.text;
             string password = passwordField.text;
+            DateTime currentDate = DateTime.Now; // Текущая дата и время
 
             using (var connection = new SqliteConnection(dbName))
             {
@@ -127,6 +132,7 @@ public class Reg : MonoBehaviour
 
                 using (var command = connection.CreateCommand())
                 {
+                    // Проверка на существование пользователя
                     command.CommandText = "SELECT COUNT(*) FROM users WHERE username=@username;";
                     command.Parameters.AddWithValue("@username", username);
                     int count = Convert.ToInt32(command.ExecuteScalar());
@@ -137,21 +143,23 @@ public class Reg : MonoBehaviour
                     }
                     else
                     {
+                        // Добавление пользователя в таблицу users
                         currentUser = username;
                         command.CommandText = "INSERT INTO users (username, password) VALUES (@username, @password);";
                         command.Parameters.AddWithValue("@password", password);
                         command.ExecuteNonQuery();
 
-                        command.CommandText = "INSERT INTO userGasRefilled (username, gas) VALUES (@username, 0);";
+                        // Заполнение таблицы userVisiting с текущей датой
+                        command.CommandText = "INSERT INTO userVisiting (username, account_creation_date, last_visit_date) VALUES (@username, @currentDate, @currentDate);";
+                        command.Parameters.AddWithValue("@currentDate", currentDate);
                         command.ExecuteNonQuery();
 
-                        command.CommandText = "INSERT INTO userGenDurRefilled (username, genDur) VALUES (@username, 0);";
+                        // Заполнение таблицы userStats с нулевыми значениями
+                        command.CommandText = "INSERT INTO userStats (username, gas, genDur, lampCount, heat, oxygen) VALUES (@username, 0, 0, 0, 0, 0);";
                         command.ExecuteNonQuery();
 
-                        command.CommandText = "INSERT INTO userLampChanged (username, lampCount) VALUES (@username, 0);";
-                        command.ExecuteNonQuery();
-
-                        command.CommandText = "INSERT INTO userHeatReduced (username, heat) VALUES (@username, 0);";
+                        // Заполнение таблицы userExtraStats с нулевыми значениями
+                        command.CommandText = "INSERT INTO userExtraStats (username, deaths, timePassed) VALUES (@username, 0, 0);";
                         command.ExecuteNonQuery();
 
                         Debug.Log("Registration successful");

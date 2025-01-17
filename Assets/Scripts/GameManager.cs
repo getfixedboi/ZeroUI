@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Data;
 using Mono.Data.Sqlite;
+using System;
 
 [RequireComponent(typeof(Collider))]
 [DisallowMultipleComponent]
@@ -102,6 +103,7 @@ public class GameManager : Interactable
     private float db_add_durability = 0;
     public static int db_add_lamp = 0;
     private float db_add_heat = 0;
+    public static float db_add_oxygen = 0;
     [SerializeField] private SaveAdmin saveAdmin;
 
     protected override void Awake()
@@ -119,7 +121,7 @@ public class GameManager : Interactable
         _openedKrishka.SetActive(false);
         _closedKrishka.SetActive(true);
 
-        saveAdmin.LoadValuesFromXML_Outscene();
+        saveAdmin.LoadValuesFromDatabase_Outscene();
     }
 
     public override void OnInteract()
@@ -383,8 +385,8 @@ public class GameManager : Interactable
     }
     public IEnumerator C_Death()
     {
-        SaveDataToDB();
         gameEnd = true;
+        SaveDataToDB();
         interactRaycaster.enabled = false;
         Light1.SetActive(false);
         Light2.SetActive(false);
@@ -408,8 +410,8 @@ public class GameManager : Interactable
     }
     public IEnumerator C_OxygenDeath()
     {
-        SaveDataToDB();
         gameEnd = true;
+        SaveDataToDB();
         interactRaycaster.enabled = false;
 
         vavle.enabled = false;
@@ -438,22 +440,42 @@ public class GameManager : Interactable
 
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "UPDATE userGasRefilled SET gas = gas + @gasToAdd WHERE username = @username;";
+                command.CommandText = "UPDATE userStats SET gas = gas + @gasToAdd WHERE username = @username;";
                 command.Parameters.AddWithValue("@username", Reg.currentUser);
                 command.Parameters.AddWithValue("@gasToAdd", db_add_gas);
                 command.ExecuteNonQuery();
 
-                command.CommandText = "UPDATE userGenDurRefilled SET genDur = genDur + @genDurToAdd WHERE username = @username;";
+                command.CommandText = "UPDATE userStats SET genDur = genDur + @genDurToAdd WHERE username = @username;";
                 command.Parameters.AddWithValue("@genDurToAdd", db_add_durability);
                 command.ExecuteNonQuery();
 
-                command.CommandText = "UPDATE userLampChanged SET lampCount = lampCount + @lampCountToAdd WHERE username = @username;";
+                command.CommandText = "UPDATE userStats SET lampCount = lampCount + @lampCountToAdd WHERE username = @username;";
                 command.Parameters.AddWithValue("@lampCountToAdd", db_add_lamp);
                 command.ExecuteNonQuery();
 
-                command.CommandText = "UPDATE userHeatReduced SET heat = heat + @heatToAdd WHERE username = @username;";
+                command.CommandText = "UPDATE userStats SET heat = heat + @heatToAdd WHERE username = @username;";
                 command.Parameters.AddWithValue("@heatToAdd", db_add_heat);
                 command.ExecuteNonQuery();
+
+                command.CommandText = "UPDATE userStats SET oxygen = oxygen + @oxygenToAdd WHERE username = @username;";
+                command.Parameters.AddWithValue("@oxygenToAdd", db_add_oxygen);
+                command.ExecuteNonQuery();
+
+
+                command.CommandText = "UPDATE userVisiting SET last_visit_date = @currentDate WHERE username = @username;";
+                command.Parameters.AddWithValue("@currentDate", DateTime.Now);
+                command.ExecuteNonQuery();
+
+
+                command.CommandText = "UPDATE userExtraStats SET timePassed = timePassed + @addTime WHERE username = @username;";
+                command.Parameters.AddWithValue("@addTime", _timer);
+                command.ExecuteNonQuery();
+
+                if (gameEnd)
+                {
+                    command.CommandText = "UPDATE userExtraStats SET deaths = deaths + 1 WHERE username = @username;";
+                    command.ExecuteNonQuery();
+                }
             }
 
             connection.Close();

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
-using System;
-using System.IO;
-using System.Xml;
+using System.Data;
+using Mono.Data.Sqlite; // Не забудьте добавить ссылку на Mono.Data.Sqlite
 
 public class SaveAdmin : MonoBehaviour
 {
@@ -20,14 +19,14 @@ public class SaveAdmin : MonoBehaviour
     public static float LampMul;
     public static float TempMul;
 
-    private string xmlFilePath;
+    public static string dbName = "URI=file:players.db";
 
     private void Awake()
     {
         if (SceneManager.GetActiveScene().buildIndex == 2)
         {
-            xmlFilePath = Path.Combine(Application.persistentDataPath, "config.xml");
-            LoadValuesFromXML();
+            CreateTableIfNotExists();
+            LoadValuesFromDatabase();
         }
     }
 
@@ -38,90 +37,108 @@ public class SaveAdmin : MonoBehaviour
         LampMul = float.Parse(LampMulField.text);
         TempMul = float.Parse(TempMulField.text);
 
-        SaveValuesToXML();
+        UpdateValuesInDatabase();
         SceneManager.LoadScene(0);
     }
 
-    private void LoadValuesFromXML()
+    private void CreateTableIfNotExists()
     {
-        if (File.Exists(xmlFilePath))
+        using (var connection = new SqliteConnection(dbName))
         {
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(xmlFilePath);
-
-            XmlNodeList xml = xmlDoc.GetElementsByTagName("Config");
-
-            foreach (XmlNode itemNode in xml)
+            connection.Open();
+            using (var command = connection.CreateCommand())
             {
-                GasMul = float.Parse(itemNode["GasMul"]?.InnerText.Replace('.', ','));
-                DurMul = float.Parse(itemNode["DurMul"]?.InnerText.Replace('.', ','));
-                LampMul = float.Parse(itemNode["LampMul"]?.InnerText.Replace('.', ','));
-                TempMul = float.Parse(itemNode["TempMul"]?.InnerText.Replace('.', ','));
-            }
-
-            GasMulField.text = GasMul.ToString();
-            DurMulField.text = DurMul.ToString();
-            LampMulField.text = LampMul.ToString();
-            TempMulField.text = TempMul.ToString();
-        }
-        else
-        {
-            GasMul = 1;
-            DurMul = 1;
-            LampMul = 1;
-            TempMul = 1;
-
-            GasMulField.text = "1";
-            DurMulField.text = "1";
-            LampMulField.text = "1";
-            TempMulField.text = "1";
-
-            SaveValuesToXML();
-        }
-    }
-
-    public void LoadValuesFromXML_Outscene()
-    {
-        if (File.Exists(xmlFilePath))
-        {
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(xmlFilePath);
-
-            XmlNodeList xml = xmlDoc.GetElementsByTagName("Config");
-
-            foreach (XmlNode itemNode in xml)
-            {
-                GasMul = float.Parse(itemNode["GasMul"]?.InnerText.Replace('.', ','));
-                DurMul = float.Parse(itemNode["DurMul"]?.InnerText.Replace('.', ','));
-                LampMul = float.Parse(itemNode["LampMul"]?.InnerText.Replace('.', ','));
-                TempMul = float.Parse(itemNode["TempMul"]?.InnerText.Replace('.', ','));
+                command.CommandText = "CREATE TABLE IF NOT EXISTS difficult (setting_id INTEGER PRIMARY KEY, GasMul FLOAT, DurMul FLOAT, LampMul FLOAT, TempMul FLOAT);";
+                command.ExecuteNonQuery();
             }
         }
     }
-    private void SaveValuesToXML()
+
+    public void LoadValuesFromDatabase()
     {
-        XmlDocument xmlDoc = new XmlDocument();
+        using (var connection = new SqliteConnection(dbName))
+        {
+            connection.Open();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT GasMul, DurMul, LampMul, TempMul FROM difficult WHERE setting_id = 1;";
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        GasMul = reader.GetFloat(0);
+                        DurMul = reader.GetFloat(1);
+                        LampMul = reader.GetFloat(2);
+                        TempMul = reader.GetFloat(3);
+                    }
+                    else
+                    {
+                        // Если нет записей, инициализируем значения по умолчанию
+                        GasMul = 1;
+                        DurMul = 1;
+                        LampMul = 1;
+                        TempMul = 1;
 
-        XmlElement root = xmlDoc.CreateElement("Config");
-        xmlDoc.AppendChild(root);
+                        // Сохраняем значения по умолчанию в БД
+                        UpdateValuesInDatabase();
+                    }
+                }
+            }
+        }
 
-        XmlElement gasMulElement = xmlDoc.CreateElement("GasMul");
-        gasMulElement.InnerText = GasMul.ToString();
-        root.AppendChild(gasMulElement);
-
-        XmlElement durMulElement = xmlDoc.CreateElement("DurMul");
-        durMulElement.InnerText = DurMul.ToString();
-        root.AppendChild(durMulElement);
-
-        XmlElement lampMulElement = xmlDoc.CreateElement("LampMul");
-        lampMulElement.InnerText = LampMul.ToString();
-        root.AppendChild(lampMulElement);
-
-        XmlElement oxygenMulElement = xmlDoc.CreateElement("TempMul");
-        oxygenMulElement.InnerText = TempMul.ToString();
-        root.AppendChild(oxygenMulElement);
-
-        xmlDoc.Save(xmlFilePath);
+        // Обновляем поля ввода
+        GasMulField.text = GasMul.ToString();
+        DurMulField.text = DurMul.ToString();
+        LampMulField.text = LampMul.ToString();
+        TempMulField.text = TempMul.ToString();
     }
 
+    public void LoadValuesFromDatabase_Outscene()
+    {
+        using (var connection = new SqliteConnection(dbName))
+        {
+            connection.Open();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT GasMul, DurMul, LampMul, TempMul FROM difficult WHERE setting_id = 1;";
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        GasMul = reader.GetFloat(0);
+                        DurMul = reader.GetFloat(1);
+                        LampMul = reader.GetFloat(2);
+                        TempMul = reader.GetFloat(3);
+                    }
+                    else
+                    {
+                        // Если нет записей, инициализируем значения по умолчанию
+                        GasMul = 1;
+                        DurMul = 1;
+                        LampMul = 1;
+                        TempMul = 1;
+
+                        // Сохраняем значения по умолчанию в БД
+                        UpdateValuesInDatabase();
+                    }
+                }
+            }
+        }
+    }
+    private void UpdateValuesInDatabase()
+    {
+        using (var connection = new SqliteConnection(dbName))
+        {
+            connection.Open();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = "INSERT OR REPLACE INTO difficult (setting_id, GasMul, DurMul, LampMul, TempMul) VALUES (1, @GasMul, @DurMul, @LampMul, @TempMul);";
+                command.Parameters.AddWithValue("@GasMul", GasMul);
+                command.Parameters.AddWithValue("@DurMul", DurMul);
+                command.Parameters.AddWithValue("@LampMul", LampMul);
+                command.Parameters.AddWithValue("@TempMul", TempMul);
+                command.ExecuteNonQuery();
+            }
+        }
+    }
 }
