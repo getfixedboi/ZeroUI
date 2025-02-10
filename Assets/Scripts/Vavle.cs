@@ -22,6 +22,11 @@ public class Vavle : Interactable
 
     private void Update()
     {
+        if(GameManager.gameEnd)
+        {
+            Destroy(this);
+        }
+
         if (!GameManager.StartGame)
         {
 
@@ -42,12 +47,7 @@ public class Vavle : Interactable
                         GameManager.CurrentOxygenCapacity += GameManager._maxOxygenCapacity * 0.01f;
                         if (GameManager.CurrentOxygenCapacity > GameManager._maxOxygenCapacity)
                         {
-                            GameManager.db_add_oxygen += GameManager.CurrentOxygenCapacity-GameManager._maxOxygenCapacity;
                             GameManager.CurrentOxygenCapacity = GameManager._maxOxygenCapacity;
-                        }
-                        else
-                        {
-                            GameManager.db_add_oxygen += GameManager._maxOxygenCapacity * 0.01f;
                         }
 
                     }

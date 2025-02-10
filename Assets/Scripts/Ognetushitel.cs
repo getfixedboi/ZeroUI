@@ -66,7 +66,10 @@ public class Ognetushitel : Interactable
     }
     private void Switcher(GameObject _object, bool state)
     {
-        _object.GetComponent<MeshRenderer>().enabled = state;
+        for (int i = 0; i < _object.transform.childCount; i++)
+        {
+            _object.transform.GetChild(i).gameObject.GetComponent<Renderer>().enabled = state;
+        }
     }
     private IEnumerator C_PickUpCD()
     {
